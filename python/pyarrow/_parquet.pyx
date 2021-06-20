@@ -1749,8 +1749,8 @@ cdef class KmsConnectionConfig(_Weakrefable):
                     self.configuration.custom_kms_conf[tobytes(k)] = \
                         tobytes(v)
                 else:
-                    raise TypeError("Expected custom_kms_conf to be " + \
-                        "a dictionary of strings")
+                    raise TypeError("Expected custom_kms_conf to be " +
+                                    "a dictionary of strings")
 
     def refresh_key_access_token(self, value):
         cdef:

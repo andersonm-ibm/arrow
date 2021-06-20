@@ -24,7 +24,7 @@ except ImportError:
 
 import base64
 from Cryptodome.Cipher import AES
-from typing import OrderedDict
+from collections import OrderedDict
 from datetime import timedelta
 
 PARQUET_NAME = 'encrypted_table.in_mem.parquet'
@@ -32,6 +32,13 @@ FOOTER_KEY = "0123456789ABCDEF"
 FOOTER_KEY_NAME = "footer_key"
 COL_KEY = "1234123412341234"
 COL_KEY_NAME = "col_key"
+DATA_TABLE = pa.Table.from_pydict(
+    OrderedDict([
+        ('a', pa.array([1, 2, 3])),
+        ('b', pa.array(['a', 'b', 'c'])),
+        ('c', pa.array(['x', 'y', 'z']))
+    ])
+)
 
 
 class InMemoryKmsClient(pq.KmsClient):
@@ -80,14 +87,7 @@ def verify_file_encrypted(path):
 def test_encrypted_parquet_write_read(tempdir):
     """Write an encrypted parquet, verify it's encrypted, and then read it."""
     path = tempdir / PARQUET_NAME
-
-    table = pa.Table.from_pydict(
-        OrderedDict([
-            ('a', pa.array([1, 2, 3])),
-            ('b', pa.array(['a', 'b', 'c'])),
-            ('c', pa.array(['x', 'y', 'z']))
-        ])
-    )
+    table = DATA_TABLE
 
     # Encrypt the footer with the footer key,
     # encrypt column `a` and column `b` with another key,
@@ -192,14 +192,7 @@ def test_encrypted_parquet_write_no_col_key(tempdir):
     without column key."""
     with pytest.raises(RuntimeError, match=r"column_keys"):
         path = tempdir / 'encrypted_table_no_col_key.in_mem.parquet'
-
-        table = pa.Table.from_pydict(
-            OrderedDict([
-                ('a', pa.array([1, 2, 3])),
-                ('b', pa.array(['a', 'b', 'c'])),
-                ('c', pa.array(['x', 'y', 'z']))
-            ])
-        )
+        table = DATA_TABLE
 
         # Encrypt the footer with the footer key
         encryption_config = pq.EncryptionConfiguration(
@@ -226,14 +219,7 @@ def test_encrypted_parquet_write_kms_error(tempdir):
     """Write an encrypted parquet, but raise KeyError in KmsClient."""
     with pytest.raises(KeyError):
         path = tempdir / 'encrypted_table_kms_error.in_mem.parquet'
-
-        table = pa.Table.from_pydict(
-            OrderedDict([
-                ('a', pa.array([1, 2, 3])),
-                ('b', pa.array(['a', 'b', 'c'])),
-                ('c', pa.array(['x', 'y', 'z']))
-            ])
-        )
+        table = DATA_TABLE
 
         encryption_config = pq.EncryptionConfiguration(
             footer_key=FOOTER_KEY_NAME,

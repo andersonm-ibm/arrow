@@ -19,11 +19,11 @@
 
 #include <string>
 
-#include "parquet/encryption/kms_client.h"
-#include "parquet/encryption/kms_client_factory.h"
 #include "arrow/python/common.h"
 #include "arrow/python/visibility.h"
 #include "arrow/util/macros.h"
+#include "parquet/encryption/kms_client.h"
+#include "parquet/encryption/kms_client_factory.h"
 
 namespace arrow {
 namespace py {
@@ -34,14 +34,12 @@ namespace encryption {
 /// Python.
 class ARROW_PYTHON_EXPORT PyKmsClientVtable {
  public:
-  std::function<void(PyObject*,
-                     const std::string& key_bytes,
-                     const std::string& master_key_identifier,
-                     std::string* out)> wrap_key;
-  std::function<void(PyObject*,
-                     const std::string& wrapped_key,
-                     const std::string& master_key_identifier,
-                     std::string* out)> unwrap_key;
+  std::function<void(PyObject*, const std::string& key_bytes,
+                     const std::string& master_key_identifier, std::string* out)>
+      wrap_key;
+  std::function<void(PyObject*, const std::string& wrapped_key,
+                     const std::string& master_key_identifier, std::string* out)>
+      unwrap_key;
 };
 
 /// \brief A helper for KmsClient implementation in Python.
@@ -51,10 +49,10 @@ class ARROW_PYTHON_EXPORT PyKmsClient : public ::parquet::encryption::KmsClient 
   ~PyKmsClient() override;
 
   std::string WrapKey(const std::string& key_bytes,
-                              const std::string& master_key_identifier) override;
+                      const std::string& master_key_identifier) override;
 
   std::string UnwrapKey(const std::string& wrapped_key,
-                                const std::string& master_key_identifier) override;
+                        const std::string& master_key_identifier) override;
 
  private:
   OwnedRefNoGIL handler_;
@@ -66,14 +64,14 @@ class ARROW_PYTHON_EXPORT PyKmsClient : public ::parquet::encryption::KmsClient 
 class ARROW_PYTHON_EXPORT PyKmsClientFactoryVtable {
  public:
   std::function<void(
-    PyObject*,
-    const ::parquet::encryption::KmsConnectionConfig& kms_connection_config,
-    std::shared_ptr<::parquet::encryption::KmsClient>* out)> create_kms_client;
+      PyObject*, const ::parquet::encryption::KmsConnectionConfig& kms_connection_config,
+      std::shared_ptr<::parquet::encryption::KmsClient>* out)>
+      create_kms_client;
 };
 
 /// \brief A helper for KmsClientFactory implementation in Python.
-class ARROW_PYTHON_EXPORT PyKmsClientFactory :
-    public ::parquet::encryption::KmsClientFactory {
+class ARROW_PYTHON_EXPORT PyKmsClientFactory
+    : public ::parquet::encryption::KmsClientFactory {
  public:
   PyKmsClientFactory(PyObject* handler, PyKmsClientFactoryVtable vtable);
   ~PyKmsClientFactory() override;

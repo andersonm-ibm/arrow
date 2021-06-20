@@ -16,12 +16,12 @@
 // under the License.
 
 #include "parquet/encryption/internal_file_decryptor.h"
+#include "arrow/util/mutex.h"
 #include "parquet/encryption/encryption.h"
 #include "parquet/encryption/encryption_internal.h"
-#include "arrow/util/mutex.h"
 
 namespace parquet {
-::arrow::util::Mutex mutex_; // TODO Temporary lock for multithreading investigation
+::arrow::util::Mutex mutex_;  // TODO Temporary lock for multithreading investigation
 
 // Decryptor
 Decryptor::Decryptor(encryption::AesDecryptor* aes_decryptor, const std::string& key,

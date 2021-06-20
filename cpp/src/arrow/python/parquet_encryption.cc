@@ -30,7 +30,7 @@ PyKmsClient::PyKmsClient(PyObject* handler, PyKmsClientVtable vtable)
 PyKmsClient::~PyKmsClient() {}
 
 std::string PyKmsClient::WrapKey(const std::string& key_bytes,
-                              const std::string& master_key_identifier) {
+                                 const std::string& master_key_identifier) {
   std::string wrapped;
   auto st = SafeCallIntoPython([&]() -> Status {
     vtable_.wrap_key(handler_.obj(), key_bytes, master_key_identifier, &wrapped);
@@ -41,7 +41,7 @@ std::string PyKmsClient::WrapKey(const std::string& key_bytes,
 }
 
 std::string PyKmsClient::UnwrapKey(const std::string& wrapped_key,
-                                const std::string& master_key_identifier) {
+                                   const std::string& master_key_identifier) {
   std::string unwrapped;
   auto st = SafeCallIntoPython([&]() -> Status {
     vtable_.unwrap_key(handler_.obj(), wrapped_key, master_key_identifier, &unwrapped);
@@ -59,7 +59,7 @@ PyKmsClientFactory::PyKmsClientFactory(PyObject* handler, PyKmsClientFactoryVtab
 PyKmsClientFactory::~PyKmsClientFactory() {}
 
 std::shared_ptr<::parquet::encryption::KmsClient> PyKmsClientFactory::CreateKmsClient(
-  const ::parquet::encryption::KmsConnectionConfig& kms_connection_config) {
+    const ::parquet::encryption::KmsConnectionConfig& kms_connection_config) {
   std::shared_ptr<::parquet::encryption::KmsClient> kms_client;
   auto st = SafeCallIntoPython([&]() -> Status {
     vtable_.create_kms_client(handler_.obj(), kms_connection_config, &kms_client);
