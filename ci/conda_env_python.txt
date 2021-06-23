@@ -30,4 +30,4 @@ pytz
 s3fs>=0.4
 setuptools
 setuptools_scm
-pycryptodomex
+cryptography
