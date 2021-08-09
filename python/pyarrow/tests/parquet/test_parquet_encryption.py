@@ -386,5 +386,3 @@ def test_encrypted_parquet_write_kms_factory_type_error(tempdir):
         # Write with encryption properties
         write_encrypted_parquet(path, table, encryption_config,
                                 kms_connection_config, crypto_factory)
-
-
