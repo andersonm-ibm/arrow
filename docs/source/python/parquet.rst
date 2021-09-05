@@ -608,8 +608,8 @@ One example is Azure Blob storage, which can be interfaced through the
 Parquet Modular Encryption (Columnar Encryption)
 ------------------------------------------------
 
-Columnar encryption is supported for Parquet files and tables starting from
-Apache Arrow 6.0.0.
+Columnar encryption is supported for Parquet files starting from
+Apache Arrow 4.0.0.
 
 Parquet uses the envelope encryption practice, where file parts are encrypted
 with "data encryption keys" (DEKs), and the DEKs are encrypted with "master
