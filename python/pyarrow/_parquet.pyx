@@ -1195,6 +1195,7 @@ cdef class ParquetReader(_Weakrefable):
                          .ReadSchemaField(field_index, &out))
         return pyarrow_wrap_chunked_array(out)
 
+
 cdef shared_ptr[WriterProperties] _create_writer_properties(
         use_dictionary=None,
         compression=None,
@@ -1518,6 +1519,7 @@ cdef class ParquetWriter(_Weakrefable):
         raise RuntimeError(
             'file metadata is only available after writer close')
 
+
 cdef class EncryptionConfiguration(_Weakrefable):
     """Configuration of the encryption, such as which columns to encrypt"""
     cdef:
@@ -1660,6 +1662,7 @@ cdef class EncryptionConfiguration(_Weakrefable):
     cdef inline shared_ptr[CEncryptionConfiguration] unwrap(self) nogil:
         return self.configuration
 
+
 cdef class DecryptionConfiguration(_Weakrefable):
     """Configuration of the decryption, such as cache timeout."""
     cdef:
@@ -1773,6 +1776,7 @@ cdef class KmsConnectionConfig(_Weakrefable):
         result.configuration = make_shared[CKmsConnectionConfig](move(config))
         return result
 
+
 # Callback definitions for CPyKmsClientVtable
 cdef void _cb_wrap_key(
         handler, const c_string& key_bytes,
@@ -1781,6 +1785,7 @@ cdef void _cb_wrap_key(
     wrapped_key = handler.wrap_key(key_bytes, mkid_str)
     out[0] = tobytes(wrapped_key)
 
+
 cdef void _cb_unwrap_key(
         handler, const c_string& wrapped_key,
         const c_string& master_key_identifier, c_string* out) except *:
@@ -1788,6 +1793,7 @@ cdef void _cb_unwrap_key(
     wk_str = frombytes(wrapped_key)
     key = handler.unwrap_key(wk_str, mkid_str)
     out[0] = tobytes(key)
+
 
 cdef class KmsClient(_Weakrefable):
     """The abstract base class for KmsClient implementations."""
@@ -1832,6 +1838,7 @@ cdef void _cb_create_kms_client(
                 type(result)))
 
     out[0] = (<KmsClient> result).unwrap()
+
 
 cdef class CryptoFactory(_Weakrefable):
     """ A factory that produces the low-level FileEncryptionProperties and
@@ -1893,11 +1900,11 @@ cdef class CryptoFactory(_Weakrefable):
         cdef:
             CResult[shared_ptr[CFileEncryptionProperties]] \
                 file_encryption_properties_result
-
-        file_encryption_properties_result = \
-            self.factory.get().SafeGetFileEncryptionProperties(
-                deref(kms_connection_config.unwrap().get()),
-                deref(encryption_config.unwrap().get()))
+        with nogil:
+            file_encryption_properties_result = \
+                self.factory.get().SafeGetFileEncryptionProperties(
+                    deref(kms_connection_config.unwrap().get()),
+                    deref(encryption_config.unwrap().get()))
         file_encryption_properties = GetResultValue(
             file_encryption_properties_result)
         return FileEncryptionProperties.wrap(file_encryption_properties)
@@ -1930,10 +1937,11 @@ cdef class CryptoFactory(_Weakrefable):
             c_decryption_config = CDecryptionConfiguration()
         else:
             c_decryption_config = deref(decryption_config.unwrap().get())
-        c_file_decryption_properties = \
-            self.factory.get().SafeGetFileDecryptionProperties(
-                deref(kms_connection_config.unwrap().get()),
-                c_decryption_config)
+        with nogil:
+            c_file_decryption_properties = \
+                self.factory.get().SafeGetFileDecryptionProperties(
+                    deref(kms_connection_config.unwrap().get()),
+                    c_decryption_config)
         file_decryption_properties = GetResultValue(
             c_file_decryption_properties)
         return FileDecryptionProperties.wrap(file_decryption_properties)
